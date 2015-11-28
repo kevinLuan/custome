@@ -7,10 +7,6 @@ import java.util.List;
 
 import com.kevin.role.dao.model.RoleUser;
 
-/**
- * @author <a href="mailto:wxh512@gmail.com">Wang XuHui</a>
- * 
- */
 public interface RoleUserService {
 	/**
 	 * 插入一个用户

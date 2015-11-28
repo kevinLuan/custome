@@ -23,8 +23,6 @@ import com.kevin.zuyu.service.OrderService;
 /**
  * 服务订单项管理
  * 
- * @author SHOUSHEN LUAN
- *
  */
 @Controller
 @RequestMapping(value = "/service_order")

@@ -22,8 +22,6 @@ import com.kevin.zuyu.service.OrderService;
 /**
  * 保健师管理
  * 
- * @author SHOUSHEN LUAN
- *
  */
 @SuppressWarnings("unchecked")
 @Controller

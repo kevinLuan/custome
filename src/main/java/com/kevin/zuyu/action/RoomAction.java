@@ -22,10 +22,7 @@ import com.kevin.zuyu.service.OrderService;
 /**
  * 房间管理
  * 
- * @author SHOUSHEN LUAN
- *
  */
-@SuppressWarnings("unchecked")
 @Controller
 @RequestMapping(value = "/room")
 public class RoomAction extends BaseController {

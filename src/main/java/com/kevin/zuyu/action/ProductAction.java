@@ -20,8 +20,6 @@ import com.kevin.zuyu.model.Product;
 /**
  * 商品管理
  * 
- * @author SHOUSHEN LUAN
- *
  */
 @SuppressWarnings("unchecked")
 @Controller

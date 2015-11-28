@@ -34,8 +34,6 @@ import com.kevin.zuyu.service.OrderService;
 /**
  * 统计报表
  * 
- * @author SHOUSHEN LUAN
- *
  */
 @Controller
 @RequestMapping(value = "/report")

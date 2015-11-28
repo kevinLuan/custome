@@ -5,10 +5,6 @@ package com.kevin.role.dao.model;
 
 import java.io.Serializable;
 
-/**
- * @author root
- * 
- */
 public class RoleUser implements Serializable {
 
 	/**

@@ -30,8 +30,6 @@ import com.kevin.zuyu.service.OrderService;
 
 /**
  * 基础服务订单
- * 
- * @author SHOUSHEN LUAN
  *
  */
 @Controller

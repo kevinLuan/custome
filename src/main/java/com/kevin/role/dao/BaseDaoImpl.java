@@ -9,10 +9,6 @@ import java.util.Map;
 import org.springframework.orm.ibatis.SqlMapClientCallback;
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
-/**
- * @author <a href="mailto:wxh512@gmail.com">Wang XuHui</a>
- * 
- */
 public class BaseDaoImpl extends SqlMapClientDaoSupport implements IBaseDao {
 
 	// 查询返回List

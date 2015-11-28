@@ -24,8 +24,6 @@ import com.kevin.zuyu.service.OrderService;
 /**
  * 套餐管理
  * 
- * @author SHOUSHEN LUAN
- *
  */
 @SuppressWarnings("unchecked")
 @Controller
