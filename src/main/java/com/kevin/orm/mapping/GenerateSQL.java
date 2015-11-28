@@ -5,7 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.feinno.commons.StringUtils;
+import com.kevin.commons.StringUtils;
 
 public class GenerateSQL {
 	public static SUPPORT_NO_ANNOTATION SUPPORT = SUPPORT_NO_ANNOTATION.DISABLE;
