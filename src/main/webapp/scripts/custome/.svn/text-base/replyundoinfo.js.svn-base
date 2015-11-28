@@ -1,0 +1,109 @@
+var grid;
+var users;
+loadUsers();
+var params='';
+$(function() {
+	grid = $('#tt').datagrid( {
+		iconCls : 'icon-save',
+		loadMsg : '数据加载中，请稍后......',
+		nowrap: false,
+		striped: true,
+		collapsible:true,
+		height:400,
+		singleSelect : false,
+		pagination : true,
+		pageList : [ 10, 20, 30 ],
+		queryParams :{channelId:_channelId,type:_type,flag:_flag},
+		url : './custome/replyInfos.do',
+		idField : 'id',
+		columns : [[ 
+		 {
+			title : '编号',
+			field : 'id',
+			width : 30,
+			rowspan: 4 
+		},
+		{
+			title : '手机号码',
+			field : 'phoneNum',
+			rowspan: 4 ,
+			width : 100
+		},
+		  {
+			title : '手机型号',
+			field : 'ua',
+			width : 100,
+			rowspan: 4 ,
+			formatter:function(val, rec){
+			   return  '<div>'+rec.ua+'</div><div>回复时间：</div>';
+			}
+		} , {
+			title : '创建时间',
+			field : 'createTime',
+			rowspan:4 ,
+			width : 160,
+			formatter:function(val, rec){
+			   return '<div>'+rec.createTime+'</div><div>'+rec.replyInfo.replyTime+'</div>';
+			}
+		}, {
+			title : '留言内容',
+			field : 'undoContent',
+			rowspan: 4 ,
+			width : 460,
+			formatter:function(val, rec){
+			   return rec.undoContent+'<br/>'+rec.replyInfo.replyContent;
+			}
+		}, 
+		{
+			title : '操作人',
+			field : 'userId',
+			rowspan: 4 ,
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<users.length;i++){
+			       if(users[i].id==val){
+			          return users[i].nickName;
+			       }
+			   }
+			   return val;
+			}
+		}
+		]]
+	});
+	
+});
+function loadUsers(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./role/getroleusers.do',
+		dataType : 'json',
+		success : function(data) {
+			users =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+ /**
+  * 查找
+  */
+ function search(){
+     var _phoneNum = $("input[id='phoneNum']").attr('value');
+     var _undoContent = $("input[id='undoContent']").attr('value');
+     var _startTime = $("input[id='startTime']").attr('value');
+     var _endTime = $("input[id='endTime']").attr('value');
+	grid.datagrid('options').queryParams = {
+		phoneNum : _phoneNum,
+		channelId:_channelId,
+		undoContent:_undoContent,
+		startTime:_startTime,
+		endTime:_endTime,
+		page : 1,
+		rows : 10,
+		type:_type,
+		flag:_flag
+	};
+   grid.datagrid('reload');
+ }

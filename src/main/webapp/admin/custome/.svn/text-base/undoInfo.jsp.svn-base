@@ -1,0 +1,140 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String channelId = request.getParameter("cid");
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>未处理管理</title>
+<link rel="stylesheet" type="text/css"
+	href="<%=path %>/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="<%=path %>/themes/icon.css">
+<script type="text/javascript"
+	src="<%=path %>/scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript"
+	src="<%=path %>/scripts/jquery.json-2.2.min.js"></script>
+<script type="text/javascript"
+	src="<%=path %>/scripts/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="<%=path %>/scripts/easyui-lang-zh_CN.js"></script>
+	<script type="text/javascript">
+	   var _channelId=<%=channelId%>;
+	</script>
+<script type="text/javascript"
+	src="<%=path %>/scripts/custome/undoInfo.js"></script>
+<script type="text/javascript"
+	src="<%=path %>/scripts/custome.base.js"></script>
+
+</head>
+
+<body>                            
+<div id="search">
+   <table background-color:"#B3E0D8">
+      <tr>
+        <td>手机号:<input name="phoneNum" id="phoneNum"></td>
+        <td>关键字:<input name="undoContent" id="undoContent"></td>
+        <td>选择时间:<input name="startTime" id="startTime" class="easyui-datebox"/></td>
+        <td>至:<input name="endTime" id="endTime" class="easyui-datebox" /></td>
+        <td> <input type="button" value="提交" onclick="javascript:search();"></td>
+      </tr>
+   </table>
+</div>
+<div ><table id="tt"></table></div>
+<div id="win" title="客服回复" style="display:none">
+    <form id="objForm" method="POST">
+        <table align="center" width="360">
+	        <tr>
+		         <td></td>
+		         <td><input id="id" name="id" value="0" type="hidden" /></td>
+		         <td></td>
+	        </tr>
+	        <tr>
+				<td>客户服务:</td>
+				<td colspan="2" id="channelName"></td>
+	       </tr>
+			<tr>
+				<td colspan="3">用户留言内容:</td>
+			</tr>
+			<tr>
+				<td colspan="3" id="undoContentAll"></td>
+			</tr>
+			 <tr>
+				<td><input   type= "radio"   name= "type"  checked="true" value= "0">投诉类</td>
+				<td><input   type= "radio"   name= "type"   value= "1">建议类</td>
+				<td><input   type= "radio"   name= "type"   value= "2">其他</td>
+			</tr>
+			<tr>
+					<td><input type= "button" value="收藏至目录" onclick="collectToDir();"></td>
+					<td>已选目录:</td>
+					<td id="catalogue"></td>
+		    </tr>
+			<tr>
+				<td colspan="3">反馈内容:</td>
+			</tr>
+			 <tr>
+				<td colspan="3"><textarea name="replyContent" cols="34" rows="4" id="replyContent"></textarea></td>
+			</tr>
+			<tr>
+			    <td >快速回复:</td>
+				<td colspan="2" id="fast"><select  id="fastContent" onchange="reContent()">
+				    <option value="">请选择</option>
+				</select></td>
+			</tr>
+			<tr>
+			    <td colspan="3"></td>
+			</tr>
+		    <tr>
+			     <td ><input align="center" type= "button"  name="submit"  value= "确认" onclick="javascript:replyUndo();"></td>
+		         <td ><input align="center" type= "button"  name="reset"  value= "取消" onclick="closeReply();"></td>
+			</tr>
+		</table>
+		</form>
+</div>
+<div id="win1"  title="收藏夹" style="display:none">
+    <form id="objForm1" method="POST">
+        <table align="center" width="360">
+	        <tr>
+		         <td></td>
+		         <td><input id="id1" name="id1" value="0" type="hidden" /></td>
+		         <td></td>
+	        </tr>
+	         <tr>
+				<td>收藏目录:</td>
+				<td colspan="2">
+		          <select name="catalogueId" id="catalogueId" onchange="changeCatalogue()">
+                    </select>
+		          <input align="center" type= "button"  value= "+" onclick="javascript:addCatalogue();">
+		        </td>
+				<td></td>
+	       </tr>
+	        <tr>
+				<td>已选择:</td>
+				<td colspan="2" id="catalogueName"></td>
+	       </tr>
+		    <tr>
+			     <td ><input align="center" type= "button"  name="submit"  value= "确认" onclick="javascript:catalogue();"></td>
+		         <td ><input align="center" type= "button"  name="reset"  value= "取消" onclick="closeCatalogue();"></td>
+			</tr>
+		</table>
+</form>
+</div>
+<div id="win2" title="添加收藏夹" style="display:none">
+    <form id="objForm2" method="POST">
+        <table align="center" width="360">
+	          <tr>
+		         <td colspan="2">目录名称 <input id="catalogueName1" name="catalogueName1" value=""/></td>
+	        </tr>
+		    <tr>
+			     <td ><input align="center" type= "button"  name="submit"  value= "添加" onclick="javascript:catalogueSave();"></td>
+		         <td ><input align="center" type= "button"  name="reset"  value= "取消" onclick="closeInnerCatalogue();"></td>
+			</tr>
+		</table>
+</form>
+</div>
+</div>
+</body>
+</html>

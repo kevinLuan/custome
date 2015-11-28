@@ -1,0 +1,232 @@
+var grid;
+var users;
+var catalogues;
+var excelinfos;
+    
+loadUsers();
+loadCatalogues();
+var params='';
+$(function() {
+	grid = $('#tt').datagrid( {
+		iconCls : 'icon-save',
+		loadMsg : '数据加载中，请稍后......',
+		nowrap: false,
+		striped: true,
+		collapsible:true,
+		height:400,
+		singleSelect : false,
+		pagination : true,
+		pageList : [ 10, 20, 30 ],
+		queryParams :{channelId:_channelId,type:_type,flag:_flag},
+		url : './custome/getcatalogueinfo.do',
+		idField : 'id',
+		columns : [[ 
+		{
+			field : 'ck',
+			checkbox : true
+		},
+		 {
+			title : '编号',
+			field : 'id',
+			width : 30,
+			rowspan: 4 
+		},
+		{
+			title : '手机号码',
+			field : 'phoneNum',
+			rowspan: 4 ,
+			width : 100
+		},
+		  {
+			title : '手机型号',
+			field : 'ua',
+			width : 100,
+			rowspan: 4 ,
+			formatter:function(val, rec){
+			   return  '<div>'+rec.ua+'</div><div>回复时间：</div>';
+			}
+		} , {
+			title : '创建时间',
+			field : 'createTime',
+			rowspan:4 ,
+			width : 140,
+			formatter:function(val, rec){
+			   return '<div>'+rec.createTime+'</div><div>'+rec.replyInfo.replyTime+'</div>';
+			}
+		}, {
+			title : '留言内容',
+			field : 'undoContent',
+			rowspan: 4 ,
+			width : 450,
+			formatter:function(val, rec){
+			   return rec.undoContent+'<br/>'+rec.replyInfo.replyContent;
+			}
+		}, {
+			title : '所属收藏夹',
+			field : 'catalogueId',
+			rowspan: 4 ,
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<catalogues.length;i++){
+			       if(catalogues[i].id==val){
+			          return catalogues[i].catalogueName;
+			       }
+			   }
+			   return val;
+			}
+		}, {
+			title : '操作人',
+			field : 'userId',
+			rowspan: 4 ,
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<users.length;i++){
+			       if(users[i].id==val){
+			          return users[i].nickName;
+			       }
+			   }
+			   return val;
+			}
+		}, {
+		    title : '操作',
+		    field : 'opt',
+		    width : 100,
+		    rowspan: 4,
+		    align : 'center', 
+			formatter:function(value,rec){
+		       return '<span style="color:red"><a href="javascript:dropCatalogue();">取消收藏</a> <a href="javascript:delItem('+rec.id+');" >删除</a></span>';
+		    }
+		 }
+		]],
+		 toolbar : [ {
+			text : '导出Excel表',
+			iconCls : 'icon-remove',
+			handler : exportToExcel
+		}]
+	});
+	setSelectCatalogue();
+});
+function loadUsers(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./role/getroleusers.do',
+		dataType : 'json',
+		success : function(data) {
+			users =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+function loadCatalogues(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./custome/getCatalogues.do?cid='+_channelId,
+		dataType : 'json',
+		success : function(data) {
+			catalogues =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+ function setSelectCatalogue(){
+          var catalogueId= document.getElementById('catalogueId');
+		  clearSelect(catalogueId);
+		  catalogueId.options.add(new Option("请选择", "0"));
+		  jQuery.ajax( {
+				type : 'POST',
+				contentType : 'application/json',
+				url :'./custome/getCatalogues.do?cid='+_channelId,
+				dataType : 'json',
+				success : function(data) {
+					$.each(data,function(entryIndex,entry){ 
+					     catalogueId.options.add(new Option(entry.catalogueName, entry.id));
+		             }); 
+				},
+				error : function() {
+					$.messager.alert('ERROR', '操作失败!', 'error');
+				}
+			});
+ }
+
+ /**
+  * 查找 
+  */
+ function search(){
+     var _catalogueId=$("#catalogueId option:selected").val();
+     var _phoneNum = $("input[id='phoneNum']").attr('value');
+     var _undoContent = $("input[id='undoContent']").attr('value');
+     var _startTime = $("input[id='startTime']").attr('value');
+     var _endTime = $("input[id='endTime']").attr('value');
+	grid.datagrid('options').queryParams = {
+	    catalogueId : _catalogueId,
+		phoneNum : _phoneNum,
+		channelId:_channelId,
+		undoContent:_undoContent,
+		startTime:_startTime,
+		endTime:_endTime,
+		page : 1,
+		rows : 10,
+		type:_type
+	};
+   grid.datagrid('reload');
+ }
+
+ function dropCatalogue(){
+     var row = grid.datagrid('getSelected');
+     var jsonObj='{"catalogueId":"0","id":"'+row.id+'"}';
+     var uri = './custome/undoInfoUpdate.do';
+	 jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		data: jsonObj,
+		url : uri,
+		dataType : 'json',
+		success : function(data) {
+			$.messager.show( {
+				title : '提示',
+				msg : '操作成功!',
+				timeout : 3000,
+				showType : 'slide'
+			});
+			grid.datagrid('clearSelections');
+			grid.datagrid('reload');
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+ }
+ function delItem(id) {
+        var jsonObj='{"deleteType":"1","id":"'+id+'"}';
+        var uri = './custome/undoInfoUpdate.do';
+		$.messager.confirm('警告', '[建议ID' + id + '],确认删除??', function(r) {
+			if (r) {
+				jQuery.ajax( {
+					type : 'POST',
+					contentType : 'application/json',
+					url : uri,
+					data : jsonObj,
+					dataType : 'json',
+					success : function(data) {
+					    grid.datagrid('clearSelections');
+						grid.datagrid('reload');
+					},
+					error : function() {
+						alert('错误');
+					}
+				});
+	   }});
+}
+function clearSelect(selectElement){
+ selectElement.options.length=0;
+ }
+ 
+ function exportToExcel() {  
+     toexcel(); 
+}

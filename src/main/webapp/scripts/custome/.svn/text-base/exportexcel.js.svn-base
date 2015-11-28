@@ -1,0 +1,47 @@
+ function toexcel(){
+     var _catalogueId=$("#catalogueId option:selected").val();
+     var _phoneNum = $("input[id='phoneNum']").attr('value');
+     var _undoContent = $("input[id='undoContent']").attr('value');
+     var _startTime = $("input[id='startTime']").attr('value');
+     var _endTime = $("input[id='endTime']").attr('value');
+     var oExcel = new ActiveXObject('Excel.Application');
+	 var oWork =oExcel.Workbooks.Add();                 
+	 var oSheet =oWork.ActiveSheet;                      
+	 var etable =document.getElementById('myExcel');
+	 var url = './custome/exportToExcel.do?catalogueId='+_catalogueId+'&channelId='+_channelId+'&startTime='+_startTime+'&undoContent='+_undoContent+'&endTime='+_endTime+'&flag='+_flag;
+	 oExcel.Rows(1).Font.Name="楷体_GB2312";
+	 oExcel.Rows(1).Font.Bold=true;
+	 oExcel.Rows(1).Font.Size = 12; 
+     oSheet.Columns("A").ColumnWidth =15;
+     oSheet.Columns("B").ColumnWidth =15;
+     oSheet.Columns("C").ColumnWidth =25;
+     oSheet.Columns("D").ColumnWidth =40;
+     oSheet.Range( oSheet.Cells(1,1),oSheet.Cells(1,4)).HorizontalAlignment =-4108;
+     oSheet.Cells(1,1).value="手机号码";
+     oSheet.Cells(1,2).value="手机型号";
+     oSheet.Cells(1,3).value="创建时间";
+     oSheet.Range(oSheet.Cells(1,4),oSheet.Cells(1,8)).mergecells=true;
+     oSheet.Cells(1,4).value="留言内容"; 
+     oSheet.Columns.AutoFit；    
+	   jQuery.ajax( {
+	 	type : 'POST',
+	    contentType : 'application/json',
+	 	url :url,
+	 	dataType : 'json',
+	 	success : function(data) {
+	 	      $.each(data,function(entryIndex,entry){ 
+	 	          oSheet.Range( oSheet.Cells(entryIndex+2,1),oSheet.Cells(entryIndex+2,4)).HorizontalAlignment =-4108; 
+	 		       oSheet.Cells(entryIndex+2,1).value=entry.phoneNum;
+	               oSheet.Cells(entryIndex+2,2).value=entry.ua;
+	               oSheet.Cells(entryIndex+2,3).value=entry.createTime;
+	               oSheet.Range(oSheet.Cells(entryIndex+2,4),oSheet.Cells(entryIndex+2,8)).mergecells=true;
+	               oSheet.Cells(entryIndex+2,4).value=entry.undoContent;
+              }); 
+           	 oExcel.Visible = true;
+	 	     oExcel.UserControl = true;
+	 	},
+	 	error : function() {
+	 		$.messager.alert('ERROR', '操作失败!', 'error');
+	 	}
+	 });
+ }

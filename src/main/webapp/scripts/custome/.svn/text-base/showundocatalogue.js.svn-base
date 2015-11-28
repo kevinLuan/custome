@@ -1,0 +1,484 @@
+var grid;
+var win;
+var win1;
+var win2;
+var users;
+var undocatalogues;
+
+    
+loadUsers();
+loadCatalogue();
+var params='';
+$(function() {
+	grid = $('#tt').datagrid( {
+		iconCls : 'icon-save',
+		loadMsg : '数据加载中，请稍后......',
+		nowrap: false,
+		striped: true,
+		collapsible:true,
+		height:400,
+		singleSelect : false,
+		pagination : true,
+		pageList : [ 10, 20, 30 ],
+		queryParams :{channelId:_channelId,type:_type,flag:_flag},
+		url : './custome/getundocatalogueinfo.do',
+		idField : 'id',
+		columns : [[ 
+		{
+			field : 'ck',
+			checkbox : true
+		},
+		 {
+			title : '编号',
+			field : 'id',
+			width : 30,
+			rowspan: 4 
+		},
+		{
+			title : '手机号码',
+			field : 'phoneNum',
+			rowspan: 4 ,
+			width : 90
+		},
+		  {
+			title : '手机型号',
+			field : 'ua',
+			width : 100,
+			rowspan: 4 
+		} , {
+			title : '创建时间',
+			field : 'createTime',
+			rowspan:4 ,
+			width : 140
+		}, {
+			title : '留言内容',
+			field : 'undoContent',
+			rowspan: 4 ,
+			width : 420
+		}, {
+			title : '所属收藏夹',
+			field : 'catalogueId',
+			rowspan: 4 ,
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<undocatalogues.length;i++){
+			       if(undocatalogues[i].id==val){
+			          return undocatalogues[i].catalogueName;
+			       }
+			   }
+			   return val;
+			}
+		}, {
+			title : '操作人',
+			field : 'userId',
+			rowspan: 4 ,
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<users.length;i++){
+			       if(users[i].id==val){
+			          return users[i].nickName;
+			       }
+			   }
+			   return val;
+			}
+		}, {
+		    title : '操作',
+		    field : 'opt',
+		    width : 150,
+		    rowspan: 4,
+		    align : 'center', 
+			formatter:function(value,rec){
+		       return '<span style="color:red"><a href="javascript:replyUndoInfo();">回复</a>  <a href="javascript:dropCatalogue();">取消收藏</a>  <a href="javascript:delItem('+rec.id+');" >删除</a></span>';
+		    }
+		 }
+		]],
+		 toolbar : [ {
+			text : '导出Excel表',
+			iconCls : 'icon-remove',
+			handler : exportToExcel
+		}]
+	});
+	setSelectCatalogue();
+	win=$('#win').window({
+        draggable : false,
+		minimizable : false,
+		maximizable : false,
+		resizable : false,
+		collapsible : false,
+		collapsed : true,
+		closed : true,
+		modal : true,
+		left : 200,
+		top : 50,
+		height : 400,
+		width : 600
+     });
+     win1=$('#win1').window({
+     	title : '收藏夹标签',
+        draggable : false,
+		minimizable : false,
+		maximizable : false,
+		resizable : false,
+		collapsible : false,
+		collapsed : true,
+		closed : true,
+		modal : true,
+		left : 220,
+		top : 70,
+		height : 200,
+		width : 400
+     });
+        win2=$('#win2').window({
+     	title : '添加收藏夹',
+        draggable : false,
+		minimizable : false,
+		maximizable : false,
+		resizable : false,
+		collapsible : false,
+		collapsed : true,
+		closed : true,
+		modal : true,
+		left : 260,
+		top : 90,
+		height : 200,
+		width : 350
+     });
+});
+function loadUsers(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./role/getroleusers.do',
+		dataType : 'json',
+		success : function(data) {
+			users =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+function loadCatalogue(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./custome/getCatalogues.do?cid='+_channelId,
+		dataType : 'json',
+		success : function(data) {
+			undocatalogues =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+ function setSelectCatalogue(){
+          var catalogueId= document.getElementById('catalogueId1');
+		  clearSelect(catalogueId);
+		  catalogueId.options.add(new Option("请选择", "0"));
+		  jQuery.ajax( {
+				type : 'POST',
+				contentType : 'application/json',
+				url :'./custome/getCatalogues.do?cid='+_channelId,
+				dataType : 'json',
+				success : function(data) {
+					$.each(data,function(entryIndex,entry){ 
+					     catalogueId.options.add(new Option(entry.catalogueName, entry.id));
+		             }); 
+				},
+				error : function() {
+					$.messager.alert('ERROR', '操作失败!', 'error');
+				}
+			});
+ }
+
+ /**
+  * 查找
+  */
+ function search(){
+     var _catalogueId=$("#catalogueId1 option:selected").val();
+     var _phoneNum = $("input[id='phoneNum']").attr('value');
+     var _undoContent = $("input[id='undoContent']").attr('value');
+     var _startTime = $("input[id='startTime']").attr('value');
+     var _endTime = $("input[id='endTime']").attr('value');
+	grid.datagrid('options').queryParams = {
+	    catalogueId : _catalogueId,
+		phoneNum : _phoneNum,
+		channelId:_channelId,
+		undoContent:_undoContent,
+		startTime:_startTime,
+		endTime:_endTime,
+		page : 1,
+		rows : 10,
+		type:_type
+	};
+   grid.datagrid('reload');
+ }
+
+ function dropCatalogue(){
+     var row = grid.datagrid('getSelected');
+     var jsonObj='{"catalogueId":"0","id":"'+row.id+'"}';
+     var uri = './custome/undoInfoUpdate.do';
+	 jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		data: jsonObj,
+		url : uri,
+		dataType : 'json',
+		success : function(data) {
+			$.messager.show( {
+				title : '提示',
+				msg : '操作成功!',
+				timeout : 3000,
+				showType : 'slide'
+			});
+			grid.datagrid('clearSelections');
+			grid.datagrid('reload');
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+ }
+ function delItem(id) {
+        var jsonObj='{"deleteType":"1","id":"'+id+'"}';
+        var uri = './custome/undoInfoUpdate.do';
+		$.messager.confirm('警告', '[建议ID' + id + '],确认删除??', function(r) {
+			if (r) {
+				jQuery.ajax( {
+					type : 'POST',
+					contentType : 'application/json',
+					url : uri,
+					data : jsonObj,
+					dataType : 'json',
+					success : function(data) {
+					    grid.datagrid('clearSelections');
+						grid.datagrid('reload');
+					},
+					error : function() {
+						alert('错误');
+					}
+				});
+	   }});
+}
+function clearSelect(selectElement){
+ selectElement.options.length=0;
+ }
+  function exportToExcel() {  
+     toexcel(); 
+}
+
+
+ function replyUndoInfo(){
+     var row = grid.datagrid('getSelected');
+     var showChannel;
+     if(row){
+         win.window('open');
+         $("#catalogue").empty();
+         win.css('display','block');
+         showChannel=$('#channelName').html(row.name);
+         if(showChannel=2){
+         showChannel='空间';
+         }
+         $('#channelName').html(showChannel);
+         $('#undoContentAll').html(row.undoContent);
+         $("#id").val(row.id);
+         
+         $('#replyContent').val('尊敬的飞信用户：xxxxxxxxxxx...点击进入手机飞信网http://f.10086.cn/');
+         loadFast();
+     }
+ }
+ function loadFast(){
+      jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./custome/getFastReplys.do',
+		dataType : 'json',
+		success : function(data) {
+		  $('#fastContent').html('');
+		  $('#fastContent').append(
+			        '<option value="">请选择</option>'
+			     );
+			$.each(data,function(entryIndex,entry){ 
+			     $('#fastContent').append(
+			        '<option value='+entry.id+'>'+entry.fastContent+'</option>'
+			     );
+             }); 
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+ }
+ /**
+  * 回复内容
+ */
+ function replyUndo(){
+     var ru= $('#replyContent').val();
+     $.messager.confirm('警告', '[回复内容：' + ru + '],确认发送??', function(r) {
+     if(r){
+     form = win.find('#objForm');
+     var jsonObj = $.toJSON(form.serializeObject());
+     form.url = './custome/replyUndoInfo.do';
+     jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url : form.url,
+		data : jsonObj,
+		dataType : 'json',
+		success : function(data) {
+			$.messager.show( {
+				title : '提示',
+				msg : '操作成功!',
+				timeout : 3000,
+				showType : 'slide'
+			});
+			grid.datagrid('reload');
+			win.window('close');
+			grid.datagrid('clearSelections');
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+	}});
+     
+ }
+ function closeReply(){
+      win.window('close');
+ }
+ 
+
+function reContent(){
+     var row = grid.datagrid('getSelected');
+     var v = $('#fastContent option:selected').text();
+     $('#replyContent').val('尊敬的飞信用户：'+v+'...点击进入手机飞信网http://f.10086.cn/');
+           
+}
+function delforIds(){
+    var rows = grid.datagrid('getSelections');
+    var ids="";
+    for(i= 0 ;i<rows.length;i++){
+       if(i!=0){
+         ids=ids+","+rows[i].id;
+       }else{
+         ids=rows[i].id;
+       }
+    }
+   var jsonObj='{"deleteType":"1","ids":"'+ids+'"}';
+    $.messager.confirm('警告', '[建议ID为:' + ids + '],确认删除??', function(r) {
+			if (r) {
+				jQuery.ajax( {
+					type : 'POST',
+					contentType : 'application/json',
+					url : './custome/updateInfos.do',
+					data : jsonObj,
+					dataType : 'json',
+					success : function(data) {
+						grid.datagrid('reload');
+					},
+					error : function() {
+						alert('错误');
+					}
+				});
+				}});
+}
+ /**
+  * 收藏至目录
+ */
+function collectToDir(){
+  loadCatalogues();
+  win1.window('open');
+  $("#catalogueName").empty();
+  win1.css('display','block');
+ }
+function addCatalogue(){
+   win2.window('open');
+   $('#catalogueName1').attr("value", "");
+   win2.css('display','block');
+}
+function loadCatalogues(){
+		  var catalogueId= document.getElementById('catalogueId');
+		  clearSelect(catalogueId);
+		  catalogueId.options.add(new Option("请选择", "0"));
+		  jQuery.ajax( {
+				type : 'POST',
+				contentType : 'application/json',
+				url :'./custome/getCatalogues.do?cid='+_channelId,
+				dataType : 'json',
+				success : function(data) {
+					$.each(data,function(entryIndex,entry){ 
+					     catalogueId.options.add(new Option(entry.catalogueName, entry.id));
+		             }); 
+				},
+				error : function() {
+					$.messager.alert('ERROR', '操作失败!', 'error');
+				}
+			});
+}
+//修改收藏夹目录
+function changeCatalogue(){
+     var cid = $("#catalogueId option:selected").html(); 
+     $("#catalogueName").html(cid);
+}
+function catalogue(){
+     var row = grid.datagrid('getSelected');
+     var cid = $("#catalogueId option:selected").val();
+     var cname = $("#catalogueId option:selected").html();
+     var jsonObj='{"id":"'+row.id+'","catalogueId":"'+cid+'"}';
+     var url = './custome/undoInfoUpdate.do';
+	 jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		data: jsonObj,
+		url : url,
+		dataType : 'json',
+		success : function(data) {
+			win1.window('close');
+			$("#catalogue").html(cname);
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+/**
+ * 提交表单数据
+ * 
+ * @return
+ */
+function catalogueSave() {
+       $("#catalogueName1").empty();
+       var ru= $('#catalogueName1').val();
+       form2 = win2.find('#objForm2');
+        var jsonObj='{"catalogueName":"'+ru+'","id":"0","channelId":"'+_channelId+'"}';
+		form2.url = './custome/catalogueupdate.do';
+		jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url : form2.url,
+		data : jsonObj,
+		dataType : 'json',
+		success : function(data) {
+			$.messager.show( {
+				title : '提示',
+				msg : '操作成功!',
+				timeout : 3000,
+				showType : 'slide'
+			});
+			loadCatalogues();
+			win2.window('close');
+			$("#catalogueName1").empty();
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+
+ function closeCatalogue(){
+      win1.window('close');
+ }
+  function closeInnerCatalogue(){
+      win2.window('close');
+ }

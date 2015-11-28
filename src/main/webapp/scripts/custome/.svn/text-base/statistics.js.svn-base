@@ -1,0 +1,53 @@
+var all;
+var allLable;
+var chart1; 
+var reply;
+$(document).ready(function() {
+   var url='./custome/getCountAllChannel.do';
+   jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url : url,
+		dataType : 'json',
+		success : function(data) {
+		    all=new Array();
+		    allLable=new Array();
+		    reply = new Array();
+			$.each(data.all,function(entryIndex,entry){ 
+			    all[entryIndex]=entry.nickName.split(',')[0]*1;
+			    allLable[entryIndex]=entry.channelName;
+			    reply[entryIndex]=entry.nickName.split(',')[1]*1;
+			});
+		 chart1 = new Highcharts.Chart({
+	         chart: {
+	            renderTo: 'container',
+	            defaultSeriesType: 'column',
+	             reversed:true
+	         },
+	         title: {
+	            text: '客服后台统计'
+	         },
+	         xAxis: {
+	            categories: allLable
+	         },
+	         yAxis: {
+	            title: {
+	               text: '总数'
+	            }
+	         },
+	         series: [{
+	            name: '全部',
+	            data:  all
+	         },{
+	            name: '回复',
+	            data: reply
+	         }]
+        });   
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+   
+});
+   

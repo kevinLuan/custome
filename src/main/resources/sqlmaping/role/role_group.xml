@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ROLE_ROLEGROUP">
+	<typeAlias alias="roleGroup" type="com.feinno.role.dao.model.RoleGroup" />
+	<resultMap id="rmp_01" class="roleGroup">
+		<result property="id" column="id" nullValue="0"/>
+		<result property="name" column="name"/>
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<insert id="insertRoleGroup" parameterClass="roleGroup">
+		<![CDATA[INSERT INTO role_group(name,status) 
+		VALUES(#name#,#status#)]]>
+		 <selectKey resultClass="java.lang.Integer" keyProperty="id" >
+            SELECT @@IDENTITY AS id
+        </selectKey>
+	</insert>
+	<select id="selectRoleGroupForMap" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,name,status from role_group
+	    limit #start#,#rows#
+	</select>
+	<select id="getRoleGroupCount" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+	    select count(id) from role_group 
+	</select>
+	<select id="getRoleGroupById" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,name,status from role_group where id=#id# 
+	</select>
+	<update id="upadteRoleGroup" parameterClass="roleGroup">
+	     update role_group set name=#name# ,status=#status# where id=#id#
+	</update>
+		<delete id="deleteRoleGroup" parameterClass="int">
+		delete from role_group where id=#id#
+    </delete>
+    <select id="getRoleGroups" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,name,status from role_group 
+	</select>
+</sqlMap>

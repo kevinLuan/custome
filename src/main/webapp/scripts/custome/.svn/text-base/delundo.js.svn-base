@@ -1,0 +1,163 @@
+var grid;
+var users;
+loadUsers();
+$(function() {
+	grid = $('#tt').datagrid( {
+		iconCls : 'icon-save',
+		loadMsg : '数据加载中，请稍后......',
+		nowrap: false,
+		striped: true,
+		collapsible:true,
+		height:400,
+		singleSelect : false,
+		pagination : true,
+		pageList : [ 10, 20, 30 ],
+		queryParams :{channelId:_channelId},
+		url : './custome/delInfos.do',
+		idField : 'id',
+		columns : [[ 
+		{
+			field : 'ck',
+			checkbox : true
+		}, {
+			title : '编号',
+			field : 'id',
+			width : 30,
+			rowspan: 4
+		},
+		{
+			title : '手机号码',
+			field : 'phoneNum',
+			width : 100,
+			rowspan: 4
+		}, {
+			title : '手机型号',
+			field : 'ua',
+			width : 80,
+			rowspan: 4
+		} , {
+			title : '创建时间',
+			field : 'createTime',
+			width : 150,
+			rowspan: 4
+		}, {
+			title : '留言内容',
+			field : 'undoContent',
+			width : 420,
+			rowspan: 4
+		}, 
+		{
+			title : '操作人',
+			field : 'userId',
+			width : 80,
+			formatter: function(val, rec){
+			   for(i=0;i<users.length;i++){
+			       if(users[i].id==val){
+			          return users[i].nickName;
+			       }
+			   }
+			   return val;
+			}
+		},
+		{
+		    title : '操作',
+		    field : 'opt',
+		    width : 100,
+		    align : 'center', 
+			formatter:function(value,rec){
+		       return '<span style="color:red"><a href="javascript:restUndo('+rec.id+');">还原</a></span>';
+		    }
+		 }]],
+		 toolbar : [ {
+			text : '多个还原',
+			iconCls : 'icon-remove',
+			handler : restUndos
+		}]
+	});
+	
+});
+function loadUsers(){
+  jQuery.ajax( {
+		type : 'POST',
+		contentType : 'application/json',
+		url :'./role/getroleusers.do',
+		dataType : 'json',
+		success : function(data) {
+			users =data;
+		},
+		error : function() {
+			$.messager.alert('ERROR', '操作失败!', 'error');
+		}
+	});
+}
+function restUndos(){
+var rows = grid.datagrid('getSelections');
+    var ids="";
+    for(i= 0 ;i<rows.length;i++){
+       if(i!=0){
+         ids=ids+","+rows[i].id;
+       }else{
+         ids=rows[i].id;
+       }
+    }
+   var jsonObj='{"deleteType":"0","ids":"'+ids+'"}';
+    $.messager.confirm('警告', '[建议ID为:' + ids + '],确认还原吗??', function(r) {
+			if (r) {
+				jQuery.ajax( {
+					type : 'POST',
+					contentType : 'application/json',
+					url : './custome/updateInfos.do',
+					data : jsonObj,
+					dataType : 'json',
+					success : function(data) {
+						grid.datagrid('reload');
+					},
+					error : function() {
+						alert('错误');
+					}
+				});
+				}});
+}
+function restUndo(id){
+var jsonObj='{"deleteType":"0","id":"'+id+'"}';
+var uri = './custome/undoInfoUpdate.do';
+jQuery.ajax( {
+					type : 'POST',
+					contentType : 'application/json',
+					url : uri,
+					data : jsonObj,
+					dataType : 'json',
+					success : function(data) {
+					$.messager.show( {
+				        title : '提示',
+				        msg : '操作成功!',
+				        timeout : 3000,
+				        showType : 'slide'
+			         });
+						grid.datagrid('reload');
+					},
+					error : function() {
+						alert('错误');
+					}
+				});
+
+}
+ /**
+  * 查找
+  */
+ function search(){
+     var _phoneNum = $("input[id='phoneNum']").attr('value');
+     var _undoContent = $("input[id='undoContent']").attr('value');
+     var _startTime = $("input[id='startTime']").attr('value');
+     var _endTime = $("input[id='endTime']").attr('value');
+	grid.datagrid('options').queryParams = {
+		phoneNum : _phoneNum,
+		channelId:_channelId,
+		undoContent:_undoContent,
+		startTime:_startTime,
+		endTime:_endTime,
+		page : 1,
+		rows : 10
+	};
+   grid.datagrid('reload');
+ }
