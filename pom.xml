@@ -226,17 +226,5 @@
 				<env>dev</env>
 			</properties>
 		</profile>
-		<profile>
-			<id>test</id>
-			<properties>
-				<env>test</env>
-			</properties>
-		</profile>
-		<profile>
-			<id>pretest</id>
-			<properties>
-				<env>pretest</env>
-			</properties>
-		</profile>
 	</profiles>
 </project>
