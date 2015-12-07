@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ROLE_GROUPROLE">
+	<typeAlias alias="groupRole" type="com.kevin.role.dao.model.GroupRole" />
+	<resultMap id="rmp_01" class="groupRole">
+		<result property="groupId" column="group_id"/>
+		<result property="roleFunctionId" column="role_function_id" />
+	</resultMap>
+	
+	<insert id="insertGroupRole" parameterClass="groupRole">
+	  INSERT INTO group_role(group_id,role_function_id) 
+		VALUES(#groupId#,#roleFunctionId#)
+	</insert>
+	<delete id="deleteGroupRole" parameterClass="java.util.Map">
+		delete from group_role 
+		<dynamic prepend="where" >  
+		<isNotNull prepend="and" property="groupId">
+			group_id = #groupId#
+        </isNotNull>
+	    <isNotNull prepend="and" property="roleFunctionId">
+			role_function_id=#roleFunctionId#
+		</isNotNull>
+		</dynamic>	
+    </delete>
+    <select id="getGroupRoles" parameterClass="java.util.Map" resultMap="rmp_01">
+	  select group_id,role_function_id from group_role  
+	   <dynamic prepend="where" >  
+		<isNotNull prepend="and" property="groupId">
+			group_id = #groupId#
+        </isNotNull>
+	    <isNotNull prepend="and" property="roleFunctionId">
+			role_function_id=#roleFunctionId#
+		</isNotNull>
+		</dynamic>
+	</select>
+</sqlMap>

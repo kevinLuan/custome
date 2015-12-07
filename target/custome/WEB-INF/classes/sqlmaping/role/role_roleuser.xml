@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ROLE_ROLEUSER">
+	<typeAlias alias="roleUser" type="com.kevin.role.dao.model.RoleUser" />
+	<resultMap id="rmp_01" class="roleUser">
+		<result property="id" column="id" nullValue="0"/>
+		<result property="nickName" column="nick_name"/>
+		<result property="passWord" column="password" />
+		<result property="userName" column="user_name"/>
+	</resultMap>
+	
+	<insert id="insert" parameterClass="roleUser">
+		<![CDATA[INSERT INTO role_user(nick_name,user_name,password) 
+		VALUES(#nickName#,#userName#,#passWord#)]]>
+		 <selectKey resultClass="java.lang.Integer" keyProperty="id" >
+            SELECT @@IDENTITY AS id
+        </selectKey>
+	</insert>
+	<select id="selectRoleUser" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,nick_name,password,user_name from role_user where user_name=#userName# and password=#passWord#
+	</select>
+	<select id="selectRoleUserForMap" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,nick_name,password,user_name from role_user 
+	    limit #start#,#rows#
+	</select>
+	<select id="getRoleUserCount" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+	    select count(id) from role_user 
+	</select>
+	<select id="getRoleUserForId" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,nick_name,password,user_name from role_user where id=#id# 
+	</select>
+	<update id="upadteRoleUser" parameterClass="roleUser">
+	     update role_user set nick_name=#nickName# ,password=#passWord# ,user_name=#userName# where id=#id#
+	</update>
+		<delete id="deleteRoleUser" parameterClass="int">
+		delete from role_user where id=#id#
+    </delete>
+    <select id="selectRoleUsers"  resultMap="rmp_01">
+	    select id,nick_name,password,user_name from role_user 
+	</select>
+</sqlMap>

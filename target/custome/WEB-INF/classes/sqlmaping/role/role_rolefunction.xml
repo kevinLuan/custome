@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ROLE_ROLEFUNCTION">
+	<typeAlias alias="roleFunction" type="com.kevin.role.dao.model.RoleFunction" />
+	<resultMap id="rmp_01" class="roleFunction">
+		<result property="id" column="id" nullValue="0"/>
+		<result property="name" column="name"/>
+		<result property="functionUrl" column="function_url" />
+		<result property="fatherId" column="father_id"/>
+		<result property="code" column="code" />
+		<result property="status" column="status"/>
+	</resultMap>
+	
+	<insert id="insertRoleFunction" parameterClass="roleFunction">
+		<![CDATA[INSERT INTO role_function(name,function_url,father_id,code,status) 
+		VALUES(#name#,#functionUrl#,#fatherId#,#code#,#status#)]]>
+		 <selectKey resultClass="java.lang.Integer" keyProperty="id" >
+            SELECT @@IDENTITY AS id
+        </selectKey>
+	</insert>
+	<select id="selectRoleFunctionForMap" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,name,function_url,father_id,code,status from role_function
+	    limit #start#,#rows#
+	</select>
+	<select id="getRoleFunctionCount" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+	    select count(id) from role_function 
+	</select>
+	<select id="getRoleFunctionById" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select id,name,function_url,father_id,code,status from role_function where id=#id# 
+	</select>
+	<update id="upadteRoleFunction" parameterClass="roleFunction">
+	     update role_function set name=#name# ,function_url=#functionUrl#,father_id=#fatherId#,code=#code#,status=#status# where id=#id#
+	</update>
+	<delete id="deleteRoleFunction" parameterClass="int">
+		delete from role_function where id=#id#
+    </delete>
+     <select id="getRoleFunctions" parameterClass="java.util.Map" resultMap="rmp_01">
+	  select id,name,function_url,father_id,code,status from role_function  
+	   <dynamic prepend="where" >  
+		<isNotNull prepend="and" property="code">
+			code = #code#
+        </isNotNull>
+	    <isNotNull prepend="and" property="fatherId">
+			father_id=#fatherId#
+		</isNotNull>
+		</dynamic>
+	</select>
+</sqlMap>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ROLE_USERROLE">
+	<typeAlias alias="userRole" type="com.kevin.role.dao.model.UserRole" />
+	<resultMap id="rmp_01" class="userRole">
+		<result property="userId" column="user_id"/>
+		<result property="groupId" column="group_id" />
+	</resultMap>
+	
+	<insert id="insertUserRole" parameterClass="userRole">
+		INSERT INTO user_role(user_id,group_id) 
+		VALUES(#userId#,#groupId#)
+	</insert>
+	<delete id="deleteUserRole" parameterClass="java.util.Map">
+		delete from user_role
+		<dynamic prepend="where" >  
+		<isNotNull prepend="and" property="userId">
+			user_id = #userId#
+        </isNotNull>
+	    <isNotNull prepend="and" property="groupId">
+			group_id=#groupId#
+		</isNotNull>
+		</dynamic>
+    </delete>
+	<select id="getUserRoleById" parameterClass="java.util.Map" resultMap="rmp_01">
+	    select user_id,group_id from user_role 
+	   <dynamic prepend="where" >  
+		<isNotNull prepend="and" property="userId">
+			user_id= #userId#
+        </isNotNull>
+	    <isNotNull prepend="and" property="groupId">
+			group_id=#groupId#
+		</isNotNull>
+		</dynamic>
+	</select>
+</sqlMap>

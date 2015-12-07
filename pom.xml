@@ -1,19 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.kevin</groupId>
-  <artifactId>custome</artifactId>
-  <packaging>war</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>custome Maven Webapp</name>
-  <url>http://maven.apache.org</url>
-  <dependencies>
-  	<dependency>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.kevin</groupId>
+	<artifactId>custome</artifactId>
+	<packaging>war</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>custome Maven Webapp</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<java-version>1.6</java-version>
+		<org.springframework-version>3.1.1.RELEASE</org.springframework-version>
+		<org.springframework.roo-version>1.0.2.RELEASE</org.springframework.roo-version>
+		<org.aspectj-version>1.6.9</org.aspectj-version>
+		<org.slf4j-version>1.5.10</org.slf4j-version>
+		<env>dev</env>
+	</properties>
+	<dependencies>
+		<dependency>
 			<groupId>org.apache</groupId>
 			<artifactId>poi</artifactId>
 			<version>2.5.1</version>
-	</dependency>
-    <dependency>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.4</version>
@@ -39,13 +47,8 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.10</version>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>apache-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.0</version>
-		</dependency>
-		 -->
+		<!-- <dependency> <groupId>apache-lang</groupId> <artifactId>commons-lang</artifactId> 
+			<version>2.0</version> </dependency> -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -62,9 +65,9 @@
 			<version>3.0.0.RELEASE</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.springframework</groupId>
-		  <artifactId>spring-transaction</artifactId>
-		  <version>3.0.0.RELEASE</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-transaction</artifactId>
+			<version>3.0.0.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -108,7 +111,7 @@
 			<version>1.0</version>
 		</dependency>
 
-        
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -121,13 +124,8 @@
 			<version>2.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>apache-taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-		</dependency>	
-		 -->
+		<!-- <dependency> <groupId>apache-taglibs</groupId> <artifactId>standard</artifactId> 
+			<version>1.1.2</version> </dependency> -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -139,12 +137,12 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.7.0</version>
 		</dependency>
-		<dependency> 
-           <groupId>com.googlecode.ehcache-spring-annotations</groupId> 
-           <artifactId>ehcache-spring-annotations</artifactId> 
-            <version>1.1.2</version> 
-      </dependency>
-      <dependency>
+		<dependency>
+			<groupId>com.googlecode.ehcache-spring-annotations</groupId>
+			<artifactId>ehcache-spring-annotations</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
 			<version>1.4.1</version>
@@ -154,27 +152,50 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.4.2</version>
 		</dependency>
-  </dependencies>
-  <build>
-    <finalName>custome</finalName>
+	</dependencies>
+	<build>
+		<finalName>custome</finalName>
+		<filters>
+			<filter>src/main/filters/filter-${env}.properties</filter>
+		</filters>
+		<resources>
+			<resource>
+				<directory>src/main/resources/</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/java/</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.hbm.xml</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>
-                    org.mortbay.jetty
-				</groupId>
+						org.mortbay.jetty
+					</groupId>
 				<artifactId>
-                    maven-jetty-plugin
-				</artifactId>
+						maven-jetty-plugin
+					</artifactId>
 				<version>
-                    6.1.12.rc5
-				</version>
+						6.1.12.rc5
+					</version>
 				<configuration>
 					<scanIntervalSeconds>
-                        1
+						1
 					</scanIntervalSeconds>
 					<webAppConfig>
 						<contextPath>
-                            /custome
+							/custome
 						</contextPath>
 					</webAppConfig>
 				</configuration>
@@ -188,8 +209,34 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-            
-            
+
+
 		</plugins>
-  </build>
+	</build>
+	<profiles>
+		<profile>
+			<id>product</id>
+			<properties>
+				<env>product</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<env>dev</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<env>test</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>pretest</id>
+			<properties>
+				<env>pretest</env>
+			</properties>
+		</profile>
+	</profiles>
 </project>
